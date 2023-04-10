@@ -4,6 +4,8 @@ const dotenv = require('dotenv');
 const Tour = require('../../models/tourModel');
 const User = require('../../models/userModel');
 const Review = require('../../models/reviewModel');
+const multer = require('multer');
+const cloudinary = require('../../utils/cloudinary');
 
 dotenv.config({ path: './starter/config.env' });
 
@@ -50,13 +52,23 @@ const importData = async () => {
   process.exit();
 };
 
+const uploadPhoto = async () => {
+  try {
+    await cloudinary.uploader.upload(
+      'C:UsersmalisOneDriveDesktopUdemyNode.jscomplete-node-bootcamp-mastercomplete-node-bootcamp-master\4-natoursstarterdev-dataimg\new-tour-4.jpg'
+    );
+  } catch (err) {
+    console.log(err);
+  }
+  process.exit();
+};
+
 if (process.argv[2] === '--import') {
   importData();
 } else if (process.argv[2] === '--delete') {
   deleteData();
-} else if (process.argv[2] === '--delete_import') {
-  deleteData();
-  importData();
+} else if (process.argv[2] === '--upload') {
+  uploadPhoto();
 }
 
 console.log(process.argv);
