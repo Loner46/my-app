@@ -38,6 +38,28 @@ const upload = multer({
 
 exports.uploadUserPhoto = upload.single('photo');
 
+exports.uploadUserPhotoToCloudinary = catchAsync(async (req, res, next) => {
+  if (!req.file) return next();
+
+  const cloudinaryUserOptions = {
+    folder: 'Natours/Users',
+    public_id: `user-${req.user.name}-${Date.now()}`,
+    format: 'jpeg',
+    width: 1000,
+    height: 1000,
+    gravity: 'faces',
+    crop: 'fill',
+  };
+
+  result = await cloudinary.uploader.upload(
+    req.file.buffer,
+    cloudinaryUserOptions
+  );
+  req.file.filename = result.secure_url;
+
+  next();
+});
+
 exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
   req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
@@ -47,13 +69,6 @@ exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
     .jpeg({ quality: 90 })
     .toFile(`starter/public/img/users/${req.file.filename}`);
 
-  next();
-});
-
-exports.uploadPhotoToCloudinary = catchAsync(async (req, res, next) => {
-  if (!req.file) return next();
-  req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
-  await cloudinary.uploader.upload(req.file.buffer);
   next();
 });
 

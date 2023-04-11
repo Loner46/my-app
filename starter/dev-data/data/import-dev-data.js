@@ -5,9 +5,17 @@ const Tour = require('../../models/tourModel');
 const User = require('../../models/userModel');
 const Review = require('../../models/reviewModel');
 const multer = require('multer');
-const cloudinary = require('../../utils/cloudinary');
+
+const cloudinary = require('cloudinary').v2;
 
 dotenv.config({ path: './starter/config.env' });
+
+// Configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const DB = process.env.DATABASE;
 mongoose
@@ -52,11 +60,46 @@ const importData = async () => {
   process.exit();
 };
 
-const uploadPhoto = async () => {
+const cloudinaryUserOptions = {
+  folder: 'Natours/Users',
+  public_id: `user-leo-${Date.now()}`,
+  format: 'jpeg',
+  width: 1000,
+  height: 1000,
+  gravity: 'faces',
+  crop: 'fill',
+};
+
+const cloudinaryTourOptions = {
+  folder: 'Natours/Tours',
+  public_id: `tour-hiking-${Date.now()}`,
+  format: 'jpeg',
+  width: 2000,
+  height: 1333,
+  gravity: 'auto',
+  crop: 'fill',
+};
+
+const uploadTourPhoto = async () => {
   try {
     await cloudinary.uploader.upload(
-      'C:UsersmalisOneDriveDesktopUdemyNode.jscomplete-node-bootcamp-mastercomplete-node-bootcamp-master\4-natoursstarterdev-dataimg\new-tour-4.jpg'
+      'starter/dev-data/img/new-tour-2.jpg',
+      cloudinaryTourOptions
     );
+  } catch (err) {
+    console.log(err);
+  }
+  process.exit();
+};
+
+const uploadUserPhoto = async () => {
+  try {
+    const result = await cloudinary.uploader.upload(
+      'starter/dev-data/img/leo.jpg',
+      cloudinaryUserOptions
+    );
+    console.log(result.secure_url);
+    console.log(result.public_id);
   } catch (err) {
     console.log(err);
   }
@@ -67,8 +110,10 @@ if (process.argv[2] === '--import') {
   importData();
 } else if (process.argv[2] === '--delete') {
   deleteData();
-} else if (process.argv[2] === '--upload') {
-  uploadPhoto();
+} else if (process.argv[2] === '--uploadTour') {
+  uploadTourPhoto();
+} else if (process.argv[2] === '--uploadUser') {
+  uploadUserPhoto();
 }
 
 console.log(process.argv);
