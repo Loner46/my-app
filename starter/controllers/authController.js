@@ -38,7 +38,8 @@ const createSendToken = (user, statusCode, req, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
-  req.body.photo = 'default.jpg';
+  req.body.photo =
+    'https://res.cloudinary.com/dwu4a8awx/image/upload/v1681223292/Natours/Users/default_vb6b7p.jpg';
   if (req.file) req.body.photo = req.file.filename;
 
   // const newUser = await User.create({
