@@ -15,7 +15,8 @@ const cloudinary = require('../utils/cloudinary');
 //         cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
 //     }
 // })
-const multerStorage = multer.memoryStorage();
+// const multerStorage = multer.memoryStorage();
+const multerStorage = multer.diskStorage({});
 
 const multerFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image')) {
@@ -37,13 +38,14 @@ const upload = multer({
 });
 
 exports.uploadUserPhoto = upload.single('photo');
+// exports.uploadMulterUserPhoto = multerUpload.single('image');
 
 exports.uploadUserPhotoToCloudinary = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
 
   const cloudinaryUserOptions = {
     folder: 'Natours/Users',
-    public_id: `user-${req.user.name}-${Date.now()}`,
+    public_id: `user-${req.user.id}-${Date.now()}`,
     format: 'jpeg',
     width: 1000,
     height: 1000,
@@ -52,25 +54,26 @@ exports.uploadUserPhotoToCloudinary = catchAsync(async (req, res, next) => {
   };
 
   result = await cloudinary.uploader.upload(
-    req.file.buffer,
+    req.file.path,
     cloudinaryUserOptions
   );
+  // console.log(JSON.stringify(result, null, 4));
   req.file.filename = result.secure_url;
 
   next();
 });
 
-exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
-  if (!req.file) return next();
-  req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
-  await sharp(req.file.buffer)
-    .resize(1000, 1000)
-    .toFormat('jpeg')
-    .jpeg({ quality: 90 })
-    .toFile(`starter/public/img/users/${req.file.filename}`);
+// exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
+//   if (!req.file) return next();
+//   req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
+//   await sharp(req.file.buffer)
+//     .resize(1000, 1000)
+//     .toFormat('jpeg')
+//     .jpeg({ quality: 90 })
+//     .toFile(`starter/public/img/users/${req.file.filename}`);
 
-  next();
-});
+//   next();
+// });
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -101,7 +104,9 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   if (req.file) {
     filteredBody.photo = req.file.filename;
   } else {
-    filteredBody.photo = 'default.jpg';
+    // filteredBody.photo = 'default.jpg';
+    filteredBody.photo =
+      'https://res.cloudinary.com/dwu4a8awx/image/upload/v1681223292/Natours/Users/default_vb6b7p.jpg';
   }
 
   // 3. Update user document

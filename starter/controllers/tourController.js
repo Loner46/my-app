@@ -5,8 +5,10 @@ const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./handlerFactory');
+const cloudinary = require('../utils/cloudinary');
 
-const multerStorage = multer.memoryStorage();
+// const multerStorage = multer.memoryStorage();
+const multerStorage = multer.diskStorage({});
 
 const multerFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image')) {
@@ -31,6 +33,55 @@ exports.uploadTourImages = upload.fields([
   { name: 'imageCover', maxCount: 1 },
   { name: 'images', maxCount: 3 },
 ]);
+
+exports.uploadTourPhotoToCloudinary = catchAsync(async (req, res, next) => {
+  if (!req.files.imageCover || !req.files.images) return next();
+
+  // Cloudinary Upload Options --Tour Cover
+  const cloudinaryTourCoverOptions = {
+    folder: 'Natours/Tours/Cover',
+    public_id: `tour-${req.params.id}-${Date.now()}-cover`,
+    format: 'jpeg',
+    width: 2000,
+    height: 1333,
+    gravity: 'auto',
+    crop: 'fill',
+  };
+
+  // console.log(JSON.stringify(Object.assign({}, req.files.images), null, 4));
+  // console.log(req.files.imageCover[0].path);
+
+  const resultCover = await cloudinary.uploader.upload(
+    req.files.imageCover[0].path,
+    cloudinaryTourCoverOptions
+  );
+  req.body.imageCover = resultCover.secure_url;
+
+  var fileKeys = Object.keys(req.files.images);
+  const secureUrls = [];
+  await Promise.all(
+    fileKeys.map(async (key, i) => {
+      // Cloudinary Upload Options --Tour Image
+      const cloudinaryTourImagesOptions = {
+        folder: 'Natours/Tours/Images',
+        public_id: `tour-${req.params.id}-${Date.now()}-${i + 1}`,
+        format: 'jpeg',
+        width: 2000,
+        height: 1333,
+        gravity: 'auto',
+        crop: 'fill',
+      };
+      const resultImage = await cloudinary.uploader.upload(
+        req.files.images[key].path,
+        cloudinaryTourImagesOptions
+      );
+      secureUrls.push(`${resultImage.secure_url}`);
+    })
+  );
+  req.body.images = secureUrls;
+
+  next();
+});
 
 exports.resizeTourImages = catchAsync(async (req, res, next) => {
   if (!req.files.imageCover || !req.files.images) return next();
