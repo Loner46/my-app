@@ -5,6 +5,8 @@ const Tour = require('../../models/tourModel');
 const User = require('../../models/userModel');
 const Review = require('../../models/reviewModel');
 const multer = require('multer');
+const Email = require('../../utils/emails');
+const sgMail = require('@sendgrid/mail');
 
 const cloudinary = require('cloudinary').v2;
 
@@ -33,6 +35,8 @@ const users = JSON.parse(fs.readFileSync(`${__dirname}/users.json`, 'utf-8'));
 const reviews = JSON.parse(
   fs.readFileSync(`${__dirname}/reviews.json`, 'utf-8')
 );
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // DELETE ALL DATA FROM BD
 const deleteData = async () => {
@@ -106,6 +110,36 @@ const uploadUserPhoto = async () => {
   process.exit();
 };
 
+const sendWelcomeEmail = async () => {
+  const newUser = 'm.alisher.1996@mail.ru';
+  const url = 'http://127.0.0.1:3000/me';
+  console.log(process.env.NODE_ENV);
+  try {
+    const result = await new Email(newUser, url).sendWelcome();
+    console.log(result);
+  } catch (err) {
+    console.log(err);
+  }
+  process.exit();
+};
+
+const msg = {
+  to: 'm.alisher.1996@mail.ru',
+  from: process.env.EMAIL_FROM,
+  subject: 'Sending mail with Sendgrid',
+  text: 'Checking',
+  html: '<strong>Welcome to Natours App</strong>',
+};
+const sendEmail = async () => {
+  try {
+    const result = await sgMail.send(msg);
+    console.log(result);
+  } catch (err) {
+    console.log(err);
+  }
+  process.exit();
+};
+
 if (process.argv[2] === '--import') {
   importData();
 } else if (process.argv[2] === '--delete') {
@@ -114,6 +148,10 @@ if (process.argv[2] === '--import') {
   uploadTourPhoto();
 } else if (process.argv[2] === '--uploadUser') {
   uploadUserPhoto();
+} else if (process.argv[2] === '--sendEmail') {
+  sendWelcomeEmail();
+} else if (process.argv[2] === '--sendMail') {
+  sendEmail();
 }
 
 console.log(process.argv);
