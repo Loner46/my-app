@@ -20,6 +20,10 @@ const bookingRouter = require('./routes/bookingRoutes');
 // Start express application
 const app = express();
 
+process.on('uncaughtException', function (err) {
+  console.log(err);
+});
+
 app.enable('trust proxy');
 
 app.set('view engine', 'pug');
