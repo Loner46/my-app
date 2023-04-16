@@ -186,7 +186,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
   if (!user) {
     return next(
-      new AppError('The provided email address isn`t registered!', 404)
+      new AppError('The provided email address is not registered!', 404)
     );
   }
 
@@ -198,11 +198,9 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   try {
     const resetURL = `${req.protocol}://${req.get(
       'host'
-    )}/api/v1/users/resetPassword/${resetToken}`;
+    )}/resetPassword/${resetToken}`;
     await new Email(user, resetURL).sendPasswordReset();
-    console.log(process.env.NODE_ENV);
-    console.log(resetURL);
-    console.log(user);
+    // console.log(resetURL);
 
     res.status(200).json({
       status: 'success',
@@ -234,16 +232,21 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     passwordResetExpiry: { $gt: Date.now() },
   });
   // console.log(user);
-
   // 2) If token has not expired, and there is user, set the new password
   if (!user) {
-    return next(new AppError('Token is invalid or has expired', 400));
+    return next(
+      new AppError('Token is invalid or has expired. Please try again', 400)
+    );
   }
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;
   user.passwordResetToken = undefined;
   user.passwordResetExpiry = undefined;
   await user.save();
+
+  // Sending Email notification about password was changed
+  const URL = `${req.protocol}://${req.get('host')}/`;
+  await new Email(user, URL).sendPasswordChange();
 
   // 3. Update changedPasswordAt property for the user
 

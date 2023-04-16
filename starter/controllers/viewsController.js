@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const Tour = require('../models/tourModel');
 const Booking = require('../models/bookingModel');
 const catchAsync = require('../utils/catchAsync');
@@ -42,6 +43,34 @@ exports.getLoginForm = catchAsync(async (req, res) => {
 exports.getSignupForm = catchAsync(async (req, res) => {
   res.status(200).render('signup', {
     title: 'Register your account',
+  });
+});
+
+exports.getForgotPassworForm = catchAsync(async (req, res) => {
+  res.status(200).render('forgotPassword', {
+    title: 'Forgot password',
+  });
+});
+
+exports.getResetPasswordForm = catchAsync(async (req, res) => {
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
+
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpiry: { $gt: Date.now() },
+  });
+  // console.log(user);
+  // 2) If token has not expired, and there is user, set the new password
+  if (!user) {
+    return res.status(200).render('expiredURL', {
+      title: 'URL is expired',
+    });
+  }
+  return res.status(200).render('resetPassword', {
+    title: 'Reset your password',
   });
 });
 

@@ -2,19 +2,18 @@
 import axios from 'axios';
 import { showAlert } from './alerts';
 
-export const login = async (email, password) => {
+export const sendResetPasswordLink = async (email) => {
   try {
     const res = await axios({
       method: 'POST',
-      url: '/api/v1/users/login',
+      url: '/api/v1/users/forgotPassword',
       data: {
         email,
-        password,
       },
     });
 
     if (res.data.status === 'success') {
-      showAlert('success', 'Logged in successfully!');
+      showAlert('success', 'Reset password link sent successfully!');
       window.setTimeout(() => {
         location.assign('/');
       }, 1500);
@@ -26,19 +25,23 @@ export const login = async (email, password) => {
   }
 };
 
-export const logout = async () => {
+export const resetPassword = async (password, passwordConfirm, resetURL) => {
   try {
     const res = await axios({
-      method: 'GET',
-      url: '/api/v1/users/logout',
+      method: 'PATCH',
+      url: `/api/v1/users/resetPassword/${resetURL}`,
+      data: {
+        password,
+        passwordConfirm,
+      },
     });
     if ((res.data.status = 'success')) {
-      showAlert('success', 'Logged out successfully');
+      showAlert('success', 'Password reset successfully');
       window.setTimeout(() => {
         location.assign('/');
-      }, 1500);
+      }, 5500);
     }
   } catch (err) {
-    showAlert('error', 'Error occured when logging out! Try again.');
+    showAlert('error', err.response.data.message);
   }
 };

@@ -1,0 +1,11 @@
+extends base
+
+block content
+  main.main
+    .forgot_password-form
+      h2.heading-secondary.ma-bt-lg Link is expired!
+      form.form.form--forgot-password
+        .form__group
+          label.form__label Oops! This invite URL is not valid anymore
+        .form__group
+          a.btn.btn--green(href=`/`) Go to home page

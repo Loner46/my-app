@@ -70,4 +70,8 @@ module.exports = class Email {
       `Your password reset token (valid only for ${process.env.PASS_RESET_TOKEN_EXPIRY} minutes)`
     );
   }
+
+  async sendPasswordChange() {
+    await this.send('passwordChanged', 'Password was changed!');
+  }
 };
