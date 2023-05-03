@@ -6,9 +6,11 @@ import { updateSettings } from './updateSettings';
 import { bookTour } from './stripe';
 import { signup } from './signup';
 import { sendResetPasswordLink, resetPassword } from './forgotPassword';
+import { showAlert } from './alerts';
 
 // DOM ELEMENTS
 const mapBox = document.getElementById('map');
+const bookBtn = document.getElementById('book-tour');
 const loginForm = document.querySelector('.form--login');
 const forgotPasswordForm = document.querySelector('.form--forgot-password');
 const resetPasswordForm = document.querySelector('.form--reset-password');
@@ -16,7 +18,7 @@ const signupForm = document.querySelector('.form--signup');
 const logOutBtn = document.querySelector('.nav__el--logout');
 const userDataForm = document.querySelector('.form-user-data');
 const userPasswordForm = document.querySelector('.form-user-password');
-const bookBtn = document.getElementById('book-tour');
+const alertMessage = document.querySelector('body').dataset.alert;
 // const fileInput = document.querySelector('.form-user-data .form__upload');
 
 // DELEGATION
@@ -114,6 +116,7 @@ if (bookBtn) {
   });
 }
 
+if (alertMessage) showAlert('success', alertMessage, 20);
 // if (fileInput) {
 //     fileInput.addEventListener('change', function(e) {
 //         const img = document.querySelector('.form-user-data .form__upload');
