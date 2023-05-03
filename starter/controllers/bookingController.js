@@ -91,12 +91,11 @@ exports.webhookCheckout = (req, res, next) => {
     return res.status(400).send(`Webhook error: ${err.message}`);
   }
 
-  console.log(`Event: ${event.type}`);
-  console.log(event.data.object);
-
   if (event.type === 'checkout.session.completed') {
+    console.log('Hello');
     createBookingCheckout(event.data.object);
   }
+
   res.status(200).json({ received: true });
 };
 
