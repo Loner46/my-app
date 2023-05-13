@@ -69,6 +69,7 @@ exports.getAll = (Model, popOptions) =>
   catchAsync(async (req, res, next) => {
     let filter = {};
     if (req.params.tourId) filter = { tour: req.params.tourId };
+    if (req.params.userId) filter.user = req.params.userId;
     let query = Model.find(filter);
     if (popOptions) query = query.populate(popOptions);
 

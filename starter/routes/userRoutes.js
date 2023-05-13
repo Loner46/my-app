@@ -1,9 +1,14 @@
 const express = require('express');
 const userController = require('./../controllers/userController');
 const authController = require('./../controllers/authController');
+const reviewRouter = require('../routes/reviewRoutes');
+const bookingRoutes = require('../routes/bookingRoutes');
 const reviewController = require('./../controllers/reviewController');
 
 const router = express.Router();
+
+router.use('/:userId/reviews', reviewRouter);
+router.use('/:userId/bookings', bookingRoutes);
 
 router.post('/signup', authController.signup);
 router.post('/login', authController.login);
